@@ -1,0 +1,506 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string.h>
+#include<time.h>
+#include<stdlib.h>
+char name[20],src[20],dest[20],pswd[20],phno[20];
+FILE *ptr;
+void signup();
+void display(char []);
+void route();
+void booking(int,int,int);
+int convert(char []);
+int login();
+void ticket(char[],char [],int,int,int);
+int check(char []);
+void deletes();
+void println();
+typedef struct departuredate
+{
+int date;
+int month;
+int year;
+}dat;
+void main()
+{
+int ch,d,m,y;
+char a[30],date[10],month[10],year[10];
+time_t t;
+clrscr();
+time(&t);
+strcpy(a,ctime(&t));
+date[0]=a[8];
+date[1]=a[9];
+date[2]='\0';
+month[0]=a[4];
+month[1]=a[5];
+month[2]=a[6];
+month[3]='\0';
+year[0]=a[20];
+year[1]=a[21];
+year[2]=a[22];
+year[3]=a[23];
+year[4]='\0';
+m=convert(month);
+d=atoi(date);
+y=atoi(year);
+printf("                                                        %s",a);
+cprintf("________________________________________________________________________________\n");
+printf("                    BALLARI INSTITUTE OF TECHNOLOGY AND MANAGMENT");
+printf("\n                                      BUS RESERVATION SYSTEM\n");
+printf("\n________________________________________________________________________________\n");
+//printf("\n\n");
+println();
+do
+{
+printf("                              WELCOME TO BUSTRUF                     \n");
+printf("\n");
+println();
+printf(" 1.SignIn\n 2.Booking \n");
+printf(" 3.Cancel Reservation\n 4.Exit");
+printf("\nEnter your choice:");
+scanf("%d",&ch);
+switch(ch)
+{
+case 1:signup();
+	break;
+case 2:booking(d,m,y);
+       break;
+case 3:deletes();
+       break;
+case 4:exit(0);
+default:printf("\nInvalid choice\n");
+}
+printf("\n");
+}while(ch!=4);
+}
+void signup()
+{
+char a,ntemp[15],ptemp[15];
+int i,n;
+clrscr();
+println();
+printf("                                   SIGN UP\n");
+cprintf("\nEnter your username:");
+scanf("%s",name);
+fprintf(ptr,"%s",name);
+fclose(ptr);
+printf("\nEnter your password of 9 characters:");
+for(i=0;i<9;i++)
+{
+a=getch();
+pswd[i]=a;
+printf("*");
+}
+fprintf(ptr,"%s",pswd);
+fclose(ptr);
+printf("\nEnter your phone number:");
+scanf("%s",phno);
+strcat(name,".txt");
+ptr=fopen(name,"w");
+fprintf(ptr,"%s\n",pswd);
+fprintf(ptr,"%s\n",phno);
+fclose(ptr);
+printf("\nYou signed Up sucessfully\n");
+}
+void booking(int d,int m,int y)
+{
+char type[2],kind[10];
+dat dd;
+int flag=0,i,ddd=1,mmm=1,yyy=1;
+i=login();
+if(i==0)
+{
+  return;
+}
+
+printf("\n\n                                    BOOKING \n");
+s:
+printf("\nEnter Source(From place):");
+scanf("%s",src);
+for(i=0;src[i]!='\0';i++)
+{
+if(!isalpha(src[i]))
+{
+printf("\nSource should be of alphabets");
+goto s;
+}
+}
+printf("\nEnter Destination(To place):");
+scanf("%s",dest);
+for(i=0;dest[i]!='\0';i++)
+{
+if(!isalpha(dest[i]))
+{
+printf("\ndestiantion should be of alphabets");
+goto s;
+}
+}
+CC:
+ddd=1;
+mmm=1;
+yyy=1;
+flag=0;
+printf("\nEnter date(dd/mm/yyyy):");
+scanf("%d%d%d",&dd.date,&dd.month,&dd.year);
+if(y>dd.year)
+   yyy=0;
+if(((dd.year%4)==0&&(dd.year%100)!=0)||(dd.year%400)==0)
+	flag=1;
+if(y==dd.year)
+{
+if(m>dd.month)
+ mmm=0;
+}
+if(y==dd.year)
+{
+ if(m==dd.month)
+ {
+  if(d>dd.date)
+   ddd=0;
+ }
+}
+if(dd.month>12||dd.month<1)
+ mmm=0;
+if(dd.month==1||dd.month==3||dd.month==5||dd.month==7||dd.month==8||dd.month==10||dd.month==12)
+{
+ if(dd.date>31||dd.date<0)
+  ddd=0;
+}
+else if(dd.month==2)
+{
+ if(flag==1)
+ {
+ if(dd.date>29||dd.date<0)
+  ddd=0;
+ }
+ else
+ {
+ if(dd.date>28||dd.date<0)
+  ddd=0;
+ }
+}
+else
+{
+ if(dd.date>30||dd.date<0)
+  ddd=0;
+}
+if(ddd==0||mmm==0||yyy==0)
+{
+printf("Invalid date");
+goto CC;
+}
+strupr(src);
+strupr(dest);
+printf("\nEnter bus type(sleeper/Semisleeper):");
+scanf("%s",kind);
+printf("\nEnter AC\NON-AC:");
+scanf("%s",type);
+if(strcmp(src,"BALLARI")==0)
+{
+	if(strcmp(dest,"BENGALURU")==0)
+	display("BAB.txt");
+	else if(strcmp(dest,"HYDRABAD")==0)
+	display("BAH.txt");
+	else if(strcmp(dest,"CHENNAI")==0)
+	display("BAC.txt");
+	else if(strcmp(dest,"TRIVENDRUM")==0)
+	display("BAT.txt");
+	else
+	{
+	route();
+	printf("\nEnter again");
+	goto s;
+	}
+
+}
+else if(strcmp(src,"BENGALURU")==0)
+{
+	if(strcmp(dest,"BALLARI")==0)
+	display("BBA.txt");
+	else if(strcmp(dest,"HYDRABAD")==0)
+	display("BH.txt");
+	else if(strcmp(dest,"CHENNAI")==0)
+	display("BC.txt");
+	else if(strcmp(dest,"TRIVENDRUM")==0)
+	display("BT.txt");
+	else
+	{
+	route();
+	printf("\nEnter again");
+	goto s;
+	}
+}
+else if(strcmp(src,"HYDRABAD")==0)
+{
+	if(strcmp(dest,"BALLARI")==0)
+	display("HBA.txt");
+	else if(strcmp(dest,"BENGALURU")==0)
+	display("HB.txt");
+	else
+	{
+	route();
+	printf("\nEnter again");
+	goto s;
+	}
+}
+else if(strcmp(src,"CHENNAI")==0)
+{
+	if(strcmp(dest,"BALLARI")==0)
+	display("CBA.txt");
+	else if(strcmp(dest,"BENGALURU")==0)
+	display("CB.txt");
+	else
+	{
+	route();
+	printf("\nEnter again");
+	goto s;
+	}
+}
+else if(strcmp(src,"TRIVENDRUM")==0)
+{
+	if(strcmp(dest,"BALLARI")==0)
+	display("TBA.txt");
+	else if(strcmp(dest,"BENGALURU")==0)
+	display("TB.txt");
+	else
+	{
+	route();
+	printf("\nEnter again");
+	goto s;
+	}
+}
+else
+{
+route();
+printf("\nEnter again:");
+goto s;
+}
+ticket(type,kind,dd.date,dd.month,dd.year);
+}
+
+
+void display(char cname[10])
+{
+char ch[10];
+ptr=fopen(cname,"r");
+printf("\n\n\n");
+while(fgets(ch,10,ptr)!=NULL)
+{
+printf("%s",ch);
+}
+}
+
+void route()
+{
+printf("\nSorry!\nThis route is not served currently.We will soon try to look up to it");
+}
+
+int convert(char mon[10])
+{
+int temp;
+if(strcmp(mon,"Jan")==0)
+	temp=1;
+if(strcmp(mon,"Feb")==0)
+	temp=2;
+if(strcmp(mon,"Mar")==0)
+	temp=3;
+if(strcmp(mon,"Apr")==0)
+	temp=4;
+if(strcmp(mon,"May")==0)
+	temp=5;
+if(strcmp(mon,"Jun")==0)
+	temp=6;
+if(strcmp(mon,"Jul")==0)
+	temp=7;
+if(strcmp(mon,"Aug")==0)
+	temp=8;
+if(strcmp(mon,"Sep")==0)
+	temp=9;
+if(strcmp(mon,"Oct")==0)
+	temp=10;
+if(strcmp(mon,"Nov")==0)
+	temp=11;
+if(strcmp(mon,"Dec")==0)
+	temp=12;
+return(temp);
+}
+
+int check(char seat[5])
+{
+FILE *t;
+char temp[5];
+int n=0;
+ptr=fopen("BUS.txt","r");
+t=fopen("temp.txt","w+");
+while(!feof(ptr))
+{
+fscanf(ptr,"%s",temp);
+if(strcmp(seat,temp)==0)
+{
+n=1;
+fprintf(t,"%s\n"," ");
+}
+else
+fprintf(t,"%s\n",temp);
+}
+fclose(t);
+fclose(ptr);
+if(n>0)
+{
+printf("\nSeat available\n");
+remove("BUS.txt");
+rename("temp.txt","BUS.txt");
+}
+else
+{
+printf("\nSeat not available\n");
+remove("temp.txt");
+}
+return(n);
+}
+
+int login()
+{
+int n=0,i;
+char temp[15],tname[10];
+clrscr();
+println();
+printf("                           LOGIN\n\n");
+Up:
+printf("Enter username:\n");
+scanf("%s",name);
+strcpy(tname,name);
+ptr=fopen(strcat(tname,".txt"),"r");
+if(ptr==NULL)
+{
+printf("\nInvalid name");
+n++;
+if(n<=3)
+goto Up;
+else
+{
+fclose(ptr);
+return(0);
+}
+}
+else
+{
+n=0;
+AA:
+rewind(ptr);
+printf("\nEnter passward:");
+for(i=0;i<9;i++)
+{
+pswd[i]=getch();
+printf("*");
+}
+pswd[i]='\0';
+fscanf(ptr,"%s",temp);
+if(strcmp(temp,pswd)==0)
+{
+printf("\n           login sucessful");
+fclose(ptr);
+return(1);
+}
+else
+{
+printf("\nInvalid passward");
+n++;
+if(n<=3)
+ goto AA;
+}
+}
+fclose(ptr);
+return(0);
+}
+
+void ticket(char type[10],char kind[10],int da,int mn,int ye)
+{
+char cname[20],ch[20],tname[20],seat[5],ph[15];
+int age,i,n,flag=0;
+printf("\nEnter number of seats to be booked:");
+scanf("%d",&n);
+for(i=0;i<n;i++)
+{
+printf("\n              Enter %d passenger detalis",i+1);
+printf("\nEnter passenger name:");
+scanf("%s",cname);
+printf("\nEnter age:");
+scanf("%d",&age);
+printf("\nEnter phone number:");
+scanf("%s",ph);
+ptr=fopen("BUS.txt","r");
+printf("\nAvailable seats\n");
+while(fgets(ch,30,ptr)!=0)
+{
+printf("\t%s",ch);
+}
+fclose(ptr);
+again:
+printf("\nEnter seat number:");
+scanf("%s",seat);
+flag=check(seat);
+if(flag==0)
+{
+goto again;
+}
+strcpy(tname,cname);
+ptr=fopen(strcat(cname,"t.txt"),"w+");
+fprintf(ptr,"%s\n",seat);
+fprintf(ptr,"__________________________________________________________________\n");
+fprintf(ptr,"TICKET NUMBER=%s\n",seat);
+fprintf(ptr,"NAME=%s\n",tname);
+fprintf(ptr,"AGE=%d\n",age);
+fprintf(ptr,"PHONE NUMBER=%s\n",ph);
+fprintf(ptr,"SOURCE=%s\n",src);
+fprintf(ptr,"DESTINATION=%s\n",dest);
+fprintf(ptr,"DATE OF DEPARTURE=%2d/%2d/%4d\n",da,mn,ye);
+fprintf(ptr,"TYPE OF BUS=%s\n",kind);
+fprintf(ptr,"KIND OF BUS=%s\n",type);
+fprintf(ptr,"SEAT NUMBER=%s\n",seat);
+fprintf(ptr,"TICKET FARE=400\n");
+fprintf(ptr,"______________________________________________________________\n");
+fclose(ptr);
+clrscr();
+printf("\n\n\n");
+println();
+display(cname);
+}
+printf("\n                         Booking Sucessful\n");
+}
+
+void deletes()
+{
+char seat[10],cname[10],fare[10];
+int i=0,size;
+FILE *f;
+i=login();
+if(i==0)
+{
+return;
+}
+println();
+printf("\n                     CANCELLATION\n\n");
+printf("Enter the passenger name:\n");
+scanf("%s",cname);
+strcat(cname,"t.txt");
+f=fopen(cname,"r");
+if(f==NULL)
+{
+printf("\nTicket not yet booked \n");
+return;
+}
+fscanf(ptr,"%s",seat);
+ptr=fopen("BUS.txt","a+");
+fprintf(ptr,"\n%s",seat);
+printf("Booking deleted\n");
+printf("400/- refunded\n");
+fclose(ptr);
+fclose(f);
+remove(cname);
+}
+void println()
+{
+printf("\n********************************************************************************\n");
+}
